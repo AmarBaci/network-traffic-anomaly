@@ -81,6 +81,21 @@ Current dataset sample in the repository:
 
 Note: Large datasets and packet captures are intentionally excluded from Git.
 
+### 5. Run Phase 1 baseline quickly
+
+Run the baseline anomaly detector (Isolation Forest) on a sampled subset for fast feedback:
+
+```bash
+./.venv/bin/python src/baseline_isolation_forest.py --sample-rows 30000
+```
+
+Outputs:
+
+- Console metrics (ROC-AUC, PR-AUC, F1, FPR, etc.)
+- JSON metrics file at `results/baseline_isolation_forest_metrics.json`
+
+To run on more data, increase `--sample-rows` or set it to `0` to use the full file.
+
 ## Planned Methodology (High Level)
 
 1. Parse and clean network traffic records
