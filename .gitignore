@@ -1,0 +1,44 @@
+# macOS
+.DS_Store
+.AppleDouble
+._*
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+venv/
+env/
+.venv
+
+# Data (too large for git)
+*.csv
+*.zip
+*.pcap
+*.pcapng
+data/*.csv
+data/*.zip
+data/*.pcap
+
+# Models
+*.pkl
+*.pt
+*.pth
+*.h5
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Environment
+.env
+.env.local
