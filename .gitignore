@@ -46,6 +46,10 @@ logs/
 *.swp
 *.swo
 
+# Node / Frontend
+node_modules/
+frontend/dist/
+
 # Environment
 .env
 .env.local

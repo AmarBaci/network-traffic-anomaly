@@ -1,0 +1,158 @@
+.page {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  gap: 1rem;
+}
+
+.hero {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: flex-start;
+  background: linear-gradient(130deg, #fffbf0 0%, #e8f6ff 100%);
+  border: 1px solid #d9e5ea;
+  border-radius: 14px;
+  padding: 1.2rem;
+}
+
+.eyebrow {
+  margin: 0;
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #5f7282;
+}
+
+.subtitle {
+  margin-top: 0.4rem;
+  color: #374957;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+button {
+  border: 1px solid #1f5572;
+  background: #0f6f9a;
+  color: #ffffff;
+  padding: 0.55rem 0.9rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+button:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+button.danger {
+  background: #a53b2a;
+  border-color: #8b2a1d;
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.card {
+  background: #ffffff;
+  border: 1px solid #dfebf2;
+  border-radius: 12px;
+  padding: 0.9rem;
+}
+
+.card h3 {
+  margin: 0 0 0.35rem;
+  color: #365163;
+  font-size: 0.95rem;
+}
+
+.card p {
+  margin: 0;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #1f2f3a;
+}
+
+.panel {
+  background: #ffffff;
+  border: 1px solid #dce8ef;
+  border-radius: 12px;
+  padding: 1rem;
+}
+
+.panel h2 {
+  margin-top: 0;
+}
+
+.split {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+th,
+td {
+  border-bottom: 1px solid #edf3f7;
+  text-align: left;
+  padding: 0.5rem;
+}
+
+th {
+  color: #365163;
+  background: #f8fbfd;
+}
+
+ul,
+ol {
+  margin-top: 0.6rem;
+  margin-bottom: 0;
+  padding-left: 1.2rem;
+  line-height: 1.5;
+}
+
+.error {
+  border: 1px solid #f2c2ba;
+  background: #fff2f0;
+  color: #8c3323;
+  border-radius: 10px;
+  padding: 0.8rem;
+}
+
+@media (max-width: 900px) {
+  .summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .split {
+    grid-template-columns: 1fr;
+  }
+
+  .hero {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 560px) {
+  .page {
+    padding: 1rem;
+  }
+
+  .summary-grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -6,10 +6,23 @@ import numpy as np
 from sklearn.metrics import average_precision_score, confusion_matrix, f1_score, precision_score, recall_score, roc_auc_score
 
 
+def calibrate_threshold(
+    anomaly_scores: np.ndarray,
+    threshold_quantile: float = 0.95,
+) -> float:
+    """Calibrate anomaly threshold from reference score distribution."""
+    if not 0 < threshold_quantile < 1:
+        raise ValueError("threshold_quantile must be in (0, 1).")
+
+    anomaly_scores = np.asarray(anomaly_scores).astype(float)
+    return float(np.quantile(anomaly_scores, threshold_quantile))
+
+
 def compute_metrics(
     y_true: np.ndarray,
     anomaly_scores: np.ndarray,
     threshold_quantile: float = 0.95,
+    threshold: float | None = None,
 ) -> dict[str, Any]:
     """Compute anomaly detection metrics from continuous anomaly scores."""
     if not 0 < threshold_quantile < 1:
@@ -18,7 +31,8 @@ def compute_metrics(
     y_true = np.asarray(y_true).astype(int)
     anomaly_scores = np.asarray(anomaly_scores).astype(float)
 
-    threshold = float(np.quantile(anomaly_scores, threshold_quantile))
+    if threshold is None:
+        threshold = calibrate_threshold(anomaly_scores, threshold_quantile)
     y_pred = (anomaly_scores >= threshold).astype(int)
 
     if len(np.unique(y_true)) > 1:

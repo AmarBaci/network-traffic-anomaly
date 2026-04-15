@@ -4,8 +4,8 @@
 
 | model | roc_auc | pr_auc | precision | recall | f1 | fpr | n_samples | n_anomalies |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| isolation_forest | 0.7543 | 0.9145 | 0.9542 | 0.0585 | 0.1103 | 0.0124 | 20971 | 17101 |
-| one_class_svm | 0.6531 | 0.9209 | 0.9990 | 0.0613 | 0.1155 | 0.0003 | 20971 | 17101 |
+| isolation_forest | 0.7555 | 0.8879 | 0.9363 | 0.0585 | 0.1101 | 0.0132 | 16696 | 12826 |
+| one_class_svm | 0.6521 | 0.9008 | 0.9988 | 0.0660 | 0.1237 | 0.0003 | 16696 | 12826 |
 
 ## First Clean Experiment Report Section
 

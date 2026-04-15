@@ -116,6 +116,94 @@ Configuration and reproducibility controls are centralized in:
 
 - `configs/phase1_baselines.json`
 
+### 6. Run Phase 2 data pipeline checks
+
+Generate the Phase 2 data quality and split-protocol report:
+
+```bash
+./.venv/bin/python src/phase2_data_quality.py
+```
+
+Then run both baselines and refresh the comparison report:
+
+```bash
+./.venv/bin/python src/baseline_isolation_forest.py
+./.venv/bin/python src/baseline_one_class_svm.py
+./.venv/bin/python src/summarize_runs.py
+```
+
+Phase 2 outputs:
+
+- Data pipeline report: `reports/phase2_data_pipeline_report.md`
+- Baseline comparison report: `reports/phase1_baseline_report.md`
+- Run logs (ignored by git): `results/experiment_runs.jsonl`, `results/experiment_runs.csv`, `results/metrics/`
+
+### 7. Dashboard backend (frontend-ready)
+
+Build a stable dashboard payload JSON from run logs:
+
+```bash
+./.venv/bin/python src/export_dashboard_data.py
+```
+
+Run a full backend refresh pipeline for dashboard consumption:
+
+```bash
+./.venv/bin/python src/refresh_dashboard_backend.py
+```
+
+Fast refresh without retraining models:
+
+```bash
+./.venv/bin/python src/refresh_dashboard_backend.py --skip-train
+```
+
+Start the API backend for a frontend app:
+
+```bash
+./.venv/bin/python -m uvicorn dashboard_api:app --reload --app-dir src
+```
+
+API endpoints:
+
+- `GET /health`
+- `GET /dashboard/data`
+- `POST /dashboard/refresh`
+
+Dashboard payload output (ignored by git):
+
+- `artifacts/dashboard/latest_dashboard_data.json`
+
+### 8. React frontend dashboard
+
+Install frontend dependencies:
+
+```bash
+cd frontend
+npm install
+```
+
+Run backend API (Terminal 1):
+
+```bash
+./.venv/bin/python -m uvicorn dashboard_api:app --reload --app-dir src
+```
+
+Run frontend app (Terminal 2):
+
+```bash
+cd frontend
+npm run dev
+```
+
+Frontend URL:
+
+- `http://localhost:5173`
+
+Optional API override for frontend:
+
+- create `frontend/.env` with `VITE_API_BASE_URL=http://127.0.0.1:8000`
+
 ## Planned Methodology (High Level)
 
 1. Parse and clean network traffic records
