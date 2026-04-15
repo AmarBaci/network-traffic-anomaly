@@ -1,0 +1,21 @@
+{
+  "data_path": null,
+  "label_column": "Label",
+  "test_size": 0.3,
+  "threshold_quantile": 0.95,
+  "sample_rows": 30000,
+  "random_seed": 42,
+  "deterministic": true,
+  "output_dir": "results",
+  "run_log_jsonl": "results/experiment_runs.jsonl",
+  "run_log_csv": "results/experiment_runs.csv",
+  "isolation_forest": {
+    "n_estimators": 200,
+    "contamination": 0.05
+  },
+  "one_class_svm": {
+    "nu": 0.1,
+    "kernel": "rbf",
+    "gamma": "scale"
+  }
+}

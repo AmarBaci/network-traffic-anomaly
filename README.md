@@ -81,20 +81,40 @@ Current dataset sample in the repository:
 
 Note: Large datasets and packet captures are intentionally excluded from Git.
 
-### 5. Run Phase 1 baseline quickly
+### 5. Run Phase 1 baseline hardening
 
-Run the baseline anomaly detector (Isolation Forest) on a sampled subset for fast feedback:
+Run both baseline models:
 
 ```bash
-./.venv/bin/python src/baseline_isolation_forest.py --sample-rows 30000
+./.venv/bin/python src/baseline_isolation_forest.py
+./.venv/bin/python src/baseline_one_class_svm.py
 ```
 
-Outputs:
+Generate comparison report:
 
-- Console metrics (ROC-AUC, PR-AUC, F1, FPR, etc.)
-- JSON metrics file at `results/baseline_isolation_forest_metrics.json`
+```bash
+./.venv/bin/python src/summarize_runs.py
+```
 
-To run on more data, increase `--sample-rows` or set it to `0` to use the full file.
+Key outputs:
+
+- Latest model metrics JSON files:
+  - `results/baseline_isolation_forest_metrics.json`
+  - `results/baseline_one_class_svm_metrics.json`
+- Per-run metrics snapshots in `results/metrics/`
+- Run logs:
+  - `results/experiment_runs.jsonl`
+  - `results/experiment_runs.csv`
+- Phase 1 report:
+  - `reports/phase1_baseline_report.md`
+
+Optional analysis notebook:
+
+- `notebooks/phase1_baseline_analysis.ipynb`
+
+Configuration and reproducibility controls are centralized in:
+
+- `configs/phase1_baselines.json`
 
 ## Planned Methodology (High Level)
 

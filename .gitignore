@@ -19,13 +19,20 @@ env/
 .venv/
 
 # Data (too large for git)
-*.csv
-*.zip
-*.pcap
-*.pcapng
-data/*.csv
-data/*.zip
-data/*.pcap
+data/**/*.csv
+data/**/*.zip
+data/**/*.pcap
+data/**/*.pcapng
+
+# Generated experiment artifacts
+results/*.json
+results/*.jsonl
+results/*.csv
+results/metrics/
+artifacts/
+outputs/
+checkpoints/
+logs/
 
 # Models
 *.pkl
