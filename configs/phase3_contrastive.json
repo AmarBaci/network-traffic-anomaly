@@ -1,0 +1,43 @@
+{
+  "data_path": null,
+  "label_column": "Label",
+  "required_columns": [],
+  "min_rows": 100,
+  "max_missing_ratio": 0.5,
+  "leakage_patterns": [
+    "(^|_)label($|_)",
+    "attack",
+    "anomaly",
+    "malicious",
+    "target",
+    "class"
+  ],
+  "val_size": 0.1,
+  "test_size": 0.3,
+  "threshold_quantile": 0.95,
+  "sample_rows": 30000,
+  "random_seed": 42,
+  "deterministic": true,
+  "output_dir": "results",
+  "run_log_jsonl": "results/experiment_runs.jsonl",
+  "run_log_csv": "results/experiment_runs.csv",
+  "contrastive": {
+    "hidden_dim": 128,
+    "embed_dim": 64,
+    "proj_dim": 32,
+    "dropout": 0.2,
+    "learning_rate": 0.001,
+    "weight_decay": 0.0001,
+    "batch_size": 256,
+    "epochs": 100,
+    "temperature": 0.5,
+    "recon_weight": 0.5,
+    "contrastive_weight": 0.5
+  },
+  "augmentation": {
+    "noise_std": 0.05,
+    "mask_prob": 0.15,
+    "jitter_range": [0.8, 1.2],
+    "strategy": "combined"
+  }
+}

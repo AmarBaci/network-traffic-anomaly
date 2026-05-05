@@ -8,6 +8,7 @@ from typing import Any
 
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 
 from dashboard_backend import DEFAULT_OUTPUT_JSON, export_dashboard_payload
 
@@ -24,6 +25,19 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+FIGURES_DIR = Path("reports/figures")
+
+
+@app.get("/figures/{filename}")
+def get_figure(filename: str) -> FileResponse:
+    if not filename.endswith(".png"):
+        raise HTTPException(status_code=400, detail="Only .png figures are served.")
+    path = FIGURES_DIR / filename
+    if not path.exists():
+        raise HTTPException(status_code=404, detail=f"Figure not found: {filename}")
+    return FileResponse(str(path), media_type="image/png")
 
 
 @app.get("/health")

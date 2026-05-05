@@ -3,18 +3,76 @@ import './App.css'
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000'
 
+const MODEL_LABELS = {
+  isolation_forest: 'Isolation Forest',
+  one_class_svm: 'One-Class SVM',
+  contrastive_ssl: 'Contrastive SSL',
+}
+
+const FIGURES = [
+  {
+    filename: 'roc_pr_curves.png',
+    title: 'ROC & Precision-Recall Curves',
+    description: 'Ranking performance across all models. Higher AUC = better anomaly separation.',
+    full: true,
+  },
+  {
+    filename: 'training_loss.png',
+    title: 'Contrastive SSL — Training Loss',
+    description: 'NT-Xent + reconstruction loss over epochs. Confirms the model converged.',
+  },
+  {
+    filename: 'tsne_embeddings.png',
+    title: 't-SNE of Learned Embeddings',
+    description: 'Encoder representations projected to 2D. Separation emerges without using labels.',
+  },
+]
+
 function formatNumber(value, digits = 4) {
-  if (value === null || value === undefined || Number.isNaN(value)) {
-    return 'N/A'
-  }
+  if (value === null || value === undefined || Number.isNaN(value)) return 'N/A'
   return Number(value).toFixed(digits)
 }
 
 function formatCount(value) {
-  if (value === null || value === undefined || Number.isNaN(value)) {
-    return 'N/A'
-  }
+  if (value === null || value === undefined || Number.isNaN(value)) return 'N/A'
   return Number(value).toLocaleString('en-US')
+}
+
+function formatModelName(model) {
+  return MODEL_LABELS[model] || model
+}
+
+function ModelCell({ model }) {
+  const label = formatModelName(model)
+  const isOurs = model === 'contrastive_ssl'
+  return (
+    <span className="model-name">
+      {label}
+      {isOurs && <span className="badge">Phase 3</span>}
+    </span>
+  )
+}
+
+function FigureCard({ filename, title, description, full }) {
+  const [errored, setErrored] = useState(false)
+  return (
+    <div className={`figure-card${full ? ' figure-full' : ''}`}>
+      <h3>{title}</h3>
+      <p className="figure-desc">{description}</p>
+      {errored ? (
+        <div className="figure-missing">
+          Run <code>python src/generate_plots.py</code> then restart the API.
+        </div>
+      ) : (
+        <img
+          src={`${API_BASE}/figures/${filename}`}
+          alt={title}
+          onError={() => setErrored(true)}
+          loading="lazy"
+        />
+      )}
+    </div>
+  )
 }
 
 function App() {
@@ -33,20 +91,15 @@ function App() {
     if (err instanceof TypeError) {
       return `${method} ${endpoint} failed: could not reach API at ${API_BASE}. Make sure the backend server is running.`
     }
-    if (err instanceof Error) {
-      return err.message
-    }
+    if (err instanceof Error) return err.message
     return `${method} ${endpoint} failed with an unknown error.`
   }
 
   const metricCards = useMemo(() => {
-    if (!latestModels.length) {
-      return []
-    }
-
+    if (!latestModels.length) return []
     const best = [...latestModels].sort((a, b) => (b.f1 || -1) - (a.f1 || -1))[0]
     return [
-      { label: 'Best Model (F1)', value: best?.model || 'N/A' },
+      { label: 'Best Model', value: formatModelName(best?.model) || 'N/A' },
       { label: 'Best F1', value: formatNumber(best?.f1) },
       { label: 'Best ROC-AUC', value: formatNumber(best?.roc_auc) },
       { label: 'Best PR-AUC', value: formatNumber(best?.pr_auc) },
@@ -60,11 +113,8 @@ function App() {
     setError('')
     try {
       const response = await fetch(`${API_BASE}/dashboard/data`)
-      if (!response.ok) {
-        throw new Error(`GET /dashboard/data failed with status ${response.status}`)
-      }
-      const data = await response.json()
-      setPayload(data)
+      if (!response.ok) throw new Error(`GET /dashboard/data failed with status ${response.status}`)
+      setPayload(await response.json())
     } catch (err) {
       setError(toReadableFetchError(err, 'GET', '/dashboard/data'))
     } finally {
@@ -80,9 +130,7 @@ function App() {
         `${API_BASE}/dashboard/refresh?skip_train=${skipTrain ? 'true' : 'false'}`,
         { method: 'POST' },
       )
-      if (!response.ok) {
-        throw new Error(`POST /dashboard/refresh failed with status ${response.status}`)
-      }
+      if (!response.ok) throw new Error(`POST /dashboard/refresh failed with status ${response.status}`)
       await fetchDashboardData()
     } catch (err) {
       setError(toReadableFetchError(err, 'POST', '/dashboard/refresh'))
@@ -99,10 +147,10 @@ function App() {
     <div className="page">
       <header className="hero">
         <div>
-          <p className="eyebrow">Network Traffic Dashboard</p>
-          <h1>Baseline Monitoring Console</h1>
+          <p className="eyebrow">Master's Pattern Recognition — Amar Baci</p>
+          <h1>Network Traffic Anomaly Detection</h1>
           <p className="subtitle">
-            Live metrics, quality checks, and run history from your anomaly detection pipeline.
+            Self-supervised contrastive learning vs. classical baselines on CIC-IDS2018 DDoS traffic.
           </p>
         </div>
         <div className="hero-actions">
@@ -136,35 +184,51 @@ function App() {
       {error && <section className="error">{error}</section>}
 
       <section className="panel">
-        <h2>Latest Models</h2>
+        <h2>Model Comparison</h2>
         <table>
           <thead>
             <tr>
               <th>Model</th>
-              <th>Run ID</th>
               <th>ROC-AUC</th>
               <th>PR-AUC</th>
+              <th>Precision</th>
+              <th>Recall</th>
               <th>F1</th>
               <th>FPR</th>
-              <th>Samples</th>
-              <th>Anomalies</th>
+              <th>Test Samples</th>
             </tr>
           </thead>
           <tbody>
             {latestModels.map((row) => (
-              <tr key={row.run_id}>
-                <td>{row.model}</td>
-                <td>{row.run_id}</td>
+              <tr key={row.run_id} className={row.model === 'contrastive_ssl' ? 'row-highlight' : ''}>
+                <td><ModelCell model={row.model} /></td>
                 <td>{formatNumber(row.roc_auc)}</td>
                 <td>{formatNumber(row.pr_auc)}</td>
+                <td>{formatNumber(row.precision)}</td>
+                <td>{formatNumber(row.recall)}</td>
                 <td>{formatNumber(row.f1)}</td>
                 <td>{formatNumber(row.fpr)}</td>
                 <td>{formatCount(row.n_samples)}</td>
-                <td>{formatCount(row.n_anomalies)}</td>
               </tr>
             ))}
           </tbody>
         </table>
+      </section>
+
+      <section className="panel figures-section">
+        <h2>Analysis Figures</h2>
+        <p className="figures-note">
+          Figures are generated from saved model artifacts. Run{' '}
+          <code>python src/generate_plots.py</code> to regenerate.
+        </p>
+        {FIGURES.filter((f) => f.full).map((f) => (
+          <FigureCard key={f.filename} {...f} />
+        ))}
+        <div className="figures-pair">
+          {FIGURES.filter((f) => !f.full).map((f) => (
+            <FigureCard key={f.filename} {...f} />
+          ))}
+        </div>
       </section>
 
       <section className="panel split">
@@ -173,7 +237,7 @@ function App() {
           <ol>
             {(payload?.leaderboard || []).map((row) => (
               <li key={row.run_id}>
-                <strong>{row.model}</strong> ({row.run_id}) - F1 {formatNumber(row.f1)}
+                <ModelCell model={row.model} /> — F1 {formatNumber(row.f1)} | ROC-AUC {formatNumber(row.roc_auc)}
               </li>
             ))}
           </ol>
@@ -183,7 +247,7 @@ function App() {
           <ul>
             {recentRuns.map((row) => (
               <li key={row.run_id}>
-                {row.model} | {row.run_id} | F1 {formatNumber(row.f1)} | ROC-AUC {formatNumber(row.roc_auc)}
+                <ModelCell model={row.model} /> | F1 {formatNumber(row.f1)} | ROC-AUC {formatNumber(row.roc_auc)}
               </li>
             ))}
           </ul>
@@ -198,7 +262,7 @@ function App() {
             <li>Columns: {formatCount(schema.n_columns)}</li>
             <li>Duplicate Rows: {formatCount(schema.duplicate_rows)}</li>
             <li>Missing Ratio: {formatNumber(schema.global_missing_ratio, 6)}</li>
-            <li>Best Model by F1: {bestModel}</li>
+            <li>Best Model by F1: {formatModelName(bestModel)}</li>
           </ul>
         </article>
         <article>

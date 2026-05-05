@@ -10,6 +10,7 @@ DEFAULT_STEPS = [
     "src/phase2_data_quality.py",
     "src/baseline_isolation_forest.py",
     "src/baseline_one_class_svm.py",
+    "src/phase3_contrastive_model.py",
     "src/summarize_runs.py",
     "src/export_dashboard_data.py",
 ]

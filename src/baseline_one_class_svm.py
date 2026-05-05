@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
+import numpy as np
 from sklearn.preprocessing import StandardScaler
 from sklearn.svm import OneClassSVM
 
@@ -102,6 +103,12 @@ def main() -> None:
 
     # OneClassSVM score_samples: larger values indicate more normal, so invert.
     anomaly_scores = -model.score_samples(X_test_scaled)
+
+    np.savez(
+        Path(output_dir) / "baseline_one_class_svm_scores.npz",
+        scores=anomaly_scores,
+        y_true=y_test.to_numpy(),
+    )
 
     print("[5/5] Evaluating...")
     metrics = compute_metrics(

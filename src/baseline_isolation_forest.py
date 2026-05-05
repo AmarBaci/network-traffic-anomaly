@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
+import numpy as np
 from sklearn.ensemble import IsolationForest
 from sklearn.preprocessing import StandardScaler
 
@@ -106,6 +107,12 @@ def main() -> None:
 
     # Higher values should indicate more anomalous points.
     anomaly_scores = -model.score_samples(X_test_scaled)
+
+    np.savez(
+        Path(output_dir) / "baseline_isolation_forest_scores.npz",
+        scores=anomaly_scores,
+        y_true=y_test.to_numpy(),
+    )
 
     print("[5/5] Evaluating...")
     metrics = compute_metrics(
