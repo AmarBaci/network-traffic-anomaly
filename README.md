@@ -1,241 +1,113 @@
 # Self-Supervised Pattern Recognition for Large-Scale Network Traffic
 
-Research project for a Master's Pattern Recognition course.
+Master's Pattern Recognition course project. Develops a contrastive self-supervised encoder for network traffic anomaly detection, trained on unlabeled normal traffic only and evaluated against classical unsupervised baselines.
 
-This repository explores self-supervised deep learning for anomaly detection in large-scale network traffic, with a focus on reducing dependence on labeled attack data.
+## Results
 
-## Core Idea
+| Model | ROC-AUC | PR-AUC | F1 | FPR |
+|---|---|---|---|---|
+| Supervised RF (labeled upper bound) | 0.9999 | 0.9999 | 0.9925 | 0.0000 |
+| **Contrastive SSL (ours)** | **0.7923** | **0.9302** | 0.1245 | 0.0016 |
+| Isolation Forest | 0.7555 | 0.8879 | 0.1101 | 0.0132 |
+| One-Class SVM | 0.6521 | 0.9008 | 0.1237 | 0.0003 |
 
-Traditional intrusion and anomaly detection pipelines often require many labeled attack examples. In real-world systems, most traffic is unlabeled and attack patterns evolve quickly.
-
-This project aims to:
-
-- Learn traffic representations from unlabeled data using self-supervised learning
-- Detect anomalous traffic patterns automatically
-- Improve detection performance while lowering manual labeling effort
-
-## Research Context
-
-- Domain: Big-data cybersecurity monitoring systems
-- Research gap: Many methods assume access to labeled attack datasets
-- Contribution target: Contrastive self-supervised representation learning on traffic flows/windows
-
-## Current Status
-
-This repository is in the early setup phase.
-
-Already included:
-
-- Initial Python dependencies
-- Data directory and starter dataset archive
-- Project skeleton for source code and notebooks
-
-Planned next milestones:
-
-- Data ingestion and preprocessing pipeline
-- Baseline anomaly model (non-SSL)
-- Self-supervised encoder training
-- Evaluation pipeline and reproducible experiments
+Dataset: CIC-IDS2017 DDoS capture (30,000 rows, 68 features). All models trained on normal traffic only; evaluated on the same held-out test set.
 
 ## Project Structure
 
 ```
 network-traffic-anomaly/
-  data/          # Raw and intermediate data artifacts (ignored if large)
-  notebooks/     # Exploratory analysis and experiment notebooks
-  src/           # Source code (pipelines, models, training, evaluation)
-  requirements.txt
-  README.md
+├── src/
+│   ├── phase3_contrastive_model.py   # SSL model training (main experiment)
+│   ├── baseline_isolation_forest.py  # Isolation Forest baseline
+│   ├── baseline_one_class_svm.py     # One-Class SVM baseline
+│   ├── supervised_upper_bound.py     # Labeled RF ceiling comparison
+│   ├── ablation_study.py             # Component ablation (loss / augmentation)
+│   ├── cross_attack_eval.py          # Generalisation to unseen attack types
+│   ├── contrastive_net.py            # Encoder, projection head, decoder
+│   ├── contrastive_augment.py        # Tabular augmentation (noise, mask, jitter)
+│   ├── preprocess.py                 # Cleaning, feature engineering, splits
+│   ├── evaluate.py                   # ROC-AUC, PR-AUC, F1, FPR
+│   ├── generate_plots.py             # ROC/PR curves, training loss, t-SNE
+│   ├── dashboard_api.py              # FastAPI backend
+│   └── dashboard_backend.py          # Dashboard payload builder
+├── configs/
+│   ├── phase3_contrastive.json       # SSL hyperparameters
+│   └── phase1_baselines.json         # Baseline hyperparameters
+├── data/                             # Dataset files (large files not tracked)
+├── results/                          # Metrics JSON, checkpoints, run logs
+├── reports/figures/                  # ROC/PR curves, t-SNE plots
+├── frontend/                         # React dashboard (Vite)
+└── requirements.txt
 ```
 
-## Getting Started
-
-### 1. Clone the repository
+## Setup
 
 ```bash
 git clone https://github.com/AmarBaci/network-traffic-anomaly.git
 cd network-traffic-anomaly
-```
-
-### 2. Create and activate a virtual environment
-
-```bash
 python3 -m venv .venv
 source .venv/bin/activate
-```
-
-### 3. Install dependencies
-
-```bash
 pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-### 4. Prepare data
+Place the dataset file in `data/`:
+- `Friday-WorkingHours-Afternoon-DDos.pcap_ISCX.csv.zip` (CIC-IDS2017)
 
-Place dataset files in `data/`.
+## Running Experiments
 
-Current dataset sample in the repository:
+All scripts read from `configs/` and log every run to `results/experiment_runs.jsonl`.
 
-- `Friday-WorkingHours-Afternoon-DDos.pcap_ISCX.csv.zip`
-
-Note: Large datasets and packet captures are intentionally excluded from Git.
-
-### 5. Run Phase 1 baseline hardening
-
-Run both baseline models:
-
+**Baselines**
 ```bash
-./.venv/bin/python src/baseline_isolation_forest.py
-./.venv/bin/python src/baseline_one_class_svm.py
+python src/baseline_isolation_forest.py
+python src/baseline_one_class_svm.py
 ```
 
-Generate comparison report:
-
+**SSL model**
 ```bash
-./.venv/bin/python src/summarize_runs.py
+python src/phase3_contrastive_model.py
+```
+Saves checkpoint and centroid to `results/phase3_ssl_checkpoint.pt`.
+
+**Supervised upper bound**
+```bash
+python src/supervised_upper_bound.py
 ```
 
-Key outputs:
-
-- Latest model metrics JSON files:
-  - `results/baseline_isolation_forest_metrics.json`
-  - `results/baseline_one_class_svm_metrics.json`
-- Per-run metrics snapshots in `results/metrics/`
-- Run logs:
-  - `results/experiment_runs.jsonl`
-  - `results/experiment_runs.csv`
-- Phase 1 report:
-  - `reports/phase1_baseline_report.md`
-
-Optional analysis notebook:
-
-- `notebooks/phase1_baseline_analysis.ipynb`
-
-Configuration and reproducibility controls are centralized in:
-
-- `configs/phase1_baselines.json`
-
-### 6. Run Phase 2 data pipeline checks
-
-Generate the Phase 2 data quality and split-protocol report:
-
+**Ablation study** (5 configurations, 50 epochs each)
 ```bash
-./.venv/bin/python src/phase2_data_quality.py
+python src/ablation_study.py
+# Use --epochs 100 to match full training length
 ```
 
-Then run both baselines and refresh the comparison report:
+**Cross-attack generalisation** (requires additional CIC-IDS2017 files)
+```bash
+python src/cross_attack_eval.py --new-data data/<attack_file>.csv
+```
+Download additional files from [Kaggle — CICIDS2017](https://www.kaggle.com/datasets/cicdataset/cicids2017).
+
+**Plots**
+```bash
+python src/generate_plots.py
+```
+Outputs ROC/PR curves, training loss curve, and t-SNE projection to `reports/figures/`.
+
+## Dashboard
+
+Start the API and frontend in two terminals:
 
 ```bash
-./.venv/bin/python src/baseline_isolation_forest.py
-./.venv/bin/python src/baseline_one_class_svm.py
-./.venv/bin/python src/summarize_runs.py
+# Terminal 1
+python -m uvicorn dashboard_api:app --reload --app-dir src
+
+# Terminal 2
+cd frontend && npm install && npm run dev
 ```
 
-Phase 2 outputs:
+Open `http://localhost:5173`. Use the Refresh button to rebuild the dashboard payload after running new experiments.
 
-- Data pipeline report: `reports/phase2_data_pipeline_report.md`
-- Baseline comparison report: `reports/phase1_baseline_report.md`
-- Run logs (ignored by git): `results/experiment_runs.jsonl`, `results/experiment_runs.csv`, `results/metrics/`
+## Reproducibility
 
-### 7. Dashboard backend (frontend-ready)
-
-Build a stable dashboard payload JSON from run logs:
-
-```bash
-./.venv/bin/python src/export_dashboard_data.py
-```
-
-Run a full backend refresh pipeline for dashboard consumption:
-
-```bash
-./.venv/bin/python src/refresh_dashboard_backend.py
-```
-
-Fast refresh without retraining models:
-
-```bash
-./.venv/bin/python src/refresh_dashboard_backend.py --skip-train
-```
-
-Start the API backend for a frontend app:
-
-```bash
-./.venv/bin/python -m uvicorn dashboard_api:app --reload --app-dir src
-```
-
-API endpoints:
-
-- `GET /health`
-- `GET /dashboard/data`
-- `POST /dashboard/refresh`
-
-Dashboard payload output (ignored by git):
-
-- `artifacts/dashboard/latest_dashboard_data.json`
-
-### 8. React frontend dashboard
-
-Install frontend dependencies:
-
-```bash
-cd frontend
-npm install
-```
-
-Run backend API (Terminal 1):
-
-```bash
-./.venv/bin/python -m uvicorn dashboard_api:app --reload --app-dir src
-```
-
-Run frontend app (Terminal 2):
-
-```bash
-cd frontend
-npm run dev
-```
-
-Frontend URL:
-
-- `http://localhost:5173`
-
-Optional API override for frontend:
-
-- create `frontend/.env` with `VITE_API_BASE_URL=http://127.0.0.1:8000`
-
-## Planned Methodology (High Level)
-
-1. Parse and clean network traffic records
-2. Build flow/window-level features and augmentations
-3. Pretrain a self-supervised encoder (contrastive objective)
-4. Fit anomaly detector in embedding space
-5. Evaluate with anomaly detection metrics
-
-Expected metrics:
-
-- ROC-AUC
-- PR-AUC
-- F1 score (thresholded)
-- False positive rate
-
-## Reference Literature
-
-1. Self-Supervised Anomaly Pattern Detection for Large-Scale Industrial Data  
-	https://doi.org/10.1016/j.neucom.2022.09.069
-2. Discovering Unknowns: Context-Enhanced Anomaly Detection  
-	https://doi.org/10.1016/j.patcog.2022.108860
-3. Enhancing Anomaly Detection Performance: Deep Learning Models  
-	https://doi.org/10.31436/iiumej.v26i2.3287
-
-## Notes for First-Time Contributors
-
-- This is an academic research codebase under active development.
-- Interfaces and file layout may evolve during early iterations.
-- Keep experiments reproducible (fixed seeds, saved configs, tracked metrics).
-
-## License
-
-No license has been added yet.
-
-If you plan to share this beyond private use, add a license file (for example, MIT or Apache-2.0) based on your advisor/course guidance.
+All experiments use `random_seed = 42` and deterministic PyTorch operations. Hyperparameters are stored in `configs/` and every run is appended to `results/experiment_runs.jsonl` with its full configuration and metrics.
