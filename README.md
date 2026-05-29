@@ -24,6 +24,7 @@ network-traffic-anomaly/
 │   ├── supervised_upper_bound.py     # Labeled RF ceiling comparison
 │   ├── ablation_study.py             # Component ablation (loss / augmentation)
 │   ├── cross_attack_eval.py          # Generalisation to unseen attack types
+│   ├── spark_preprocess.py           # Spark-based scalable preprocessing pipeline
 │   ├── contrastive_net.py            # Encoder, projection head, decoder
 │   ├── contrastive_augment.py        # Tabular augmentation (noise, mask, jitter)
 │   ├── preprocess.py                 # Cleaning, feature engineering, splits
@@ -58,6 +59,18 @@ Place the dataset file in `data/`:
 ## Running Experiments
 
 All scripts read from `configs/` and log every run to `results/experiment_runs.jsonl`.
+
+**Spark preprocessing** (scalable alternative to preprocess.py)
+```bash
+# Local mode
+python src/spark_preprocess.py
+
+# Cluster (spark-submit)
+spark-submit --master yarn src/spark_preprocess.py \
+    --data-path data/Friday-WorkingHours-Afternoon-DDos.pcap_ISCX.csv.zip \
+    --output-dir results/spark_splits
+```
+Writes train/val/test Parquet splits and `results/spark_splits/quality_report.json`.
 
 **Baselines**
 ```bash
