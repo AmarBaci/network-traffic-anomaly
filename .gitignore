@@ -24,10 +24,14 @@ data/**/*.zip
 data/**/*.pcap
 data/**/*.pcapng
 
+# Generated report
+reports/technical_report.docx
+
 # Generated experiment artifacts
 results/*.json
 results/*.jsonl
 results/*.csv
+results/*.npz
 results/metrics/
 artifacts/
 outputs/

@@ -31,6 +31,11 @@ def main() -> None:
     if df.empty:
         raise ValueError("Run log JSONL is empty.")
 
+    REPORT_MODELS = {"isolation_forest", "one_class_svm", "contrastive_ssl"}
+    df = df[df["model"].isin(REPORT_MODELS)]
+    if df.empty:
+        raise ValueError("No baseline or SSL runs found in the run log.")
+
     latest_per_model = (
         df.sort_values("run_id")
         .groupby("model", as_index=False)

@@ -17,6 +17,12 @@ const FIGURES = [
     full: true,
   },
   {
+    filename: 'ablation_study.png',
+    title: 'Ablation Study',
+    description: 'Component contribution: combined aug + dual-objective loss vs. each removed individually.',
+    full: true,
+  },
+  {
     filename: 'training_loss.png',
     title: 'Contrastive SSL — Training Loss',
     description: 'NT-Xent + reconstruction loss over epochs. Confirms the model converged.',
@@ -150,7 +156,7 @@ function App() {
           <p className="eyebrow">Master's Pattern Recognition — Amar Baci</p>
           <h1>Network Traffic Anomaly Detection</h1>
           <p className="subtitle">
-            Self-supervised contrastive learning vs. classical baselines on CIC-IDS2018 DDoS traffic.
+            Self-supervised contrastive learning vs. classical baselines on CIC-IDS2017 DDoS traffic.
           </p>
         </div>
         <div className="hero-actions">

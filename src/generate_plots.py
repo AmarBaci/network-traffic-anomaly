@@ -1,4 +1,4 @@
-"""Generate ROC/PR curves, training loss, and t-SNE plots from saved model artifacts.
+"""Generate ROC/PR curves, training loss, t-SNE, and ablation plots from saved artifacts.
 
 Run after training all models:
     python src/generate_plots.py           # all plots including t-SNE
@@ -9,6 +9,7 @@ Outputs land in reports/figures/.
 from __future__ import annotations
 
 import argparse
+import json
 from pathlib import Path
 
 import matplotlib.pyplot as plt
@@ -23,13 +24,18 @@ MODELS: dict[str, Path] = {
     "Isolation Forest": RESULTS_DIR / "baseline_isolation_forest_scores.npz",
     "One-Class SVM": RESULTS_DIR / "baseline_one_class_svm_scores.npz",
     "Contrastive SSL (ours)": RESULTS_DIR / "phase3_ssl_scores.npz",
+    "Supervised RF (upper bound)": RESULTS_DIR / "supervised_rf_scores.npz",
 }
 
 COLORS: dict[str, str] = {
     "Isolation Forest": "#1f77b4",
     "One-Class SVM": "#ff7f0e",
     "Contrastive SSL (ours)": "#2ca02c",
+    "Supervised RF (upper bound)": "#9467bd",
 }
+
+# Supervised RF is an upper bound reference, not a competing baseline.
+DASHED: set[str] = {"Supervised RF (upper bound)"}
 
 
 def _load(path: Path) -> dict[str, np.ndarray] | None:
@@ -58,12 +64,13 @@ def plot_roc_pr(output_path: Path) -> None:
 
         scores, y_true = data["scores"], data["y_true"]
         color = COLORS[name]
+        ls = "--" if name in DASHED else "-"
 
         fpr, tpr, _ = roc_curve(y_true, scores)
-        ax_roc.plot(fpr, tpr, label=f"{name}  AUC={auc(fpr, tpr):.3f}", color=color, lw=2)
+        ax_roc.plot(fpr, tpr, label=f"{name}  AUC={auc(fpr, tpr):.3f}", color=color, lw=2, ls=ls)
 
         precision, recall, _ = precision_recall_curve(y_true, scores)
-        ax_pr.plot(recall, precision, label=f"{name}  AUC={auc(recall, precision):.3f}", color=color, lw=2)
+        ax_pr.plot(recall, precision, label=f"{name}  AUC={auc(recall, precision):.3f}", color=color, lw=2, ls=ls)
 
         plotted = True
 
@@ -144,6 +151,56 @@ def plot_tsne(output_path: Path, max_points: int = 5000) -> None:
     _save(fig, output_path)
 
 
+def plot_ablation(output_path: Path) -> None:
+    ablation_path = RESULTS_DIR / "ablation_study_results.json"
+    if not ablation_path.exists():
+        print("  [skip] ablation — run ablation_study.py first.")
+        return
+
+    with ablation_path.open() as f:
+        data = json.load(f)
+
+    results = data["results"]
+    labels = [r["label"] for r in results]
+    roc_aucs = [r["roc_auc"] for r in results]
+    pr_aucs = [r["pr_auc"] for r in results]
+
+    # Wrap long labels for readability
+    wrapped = [l.replace(" (", "\n(") for l in labels]
+
+    x = np.arange(len(labels))
+    bar_w = 0.35
+
+    fig, ax = plt.subplots(figsize=(12, 5))
+    bars_roc = ax.bar(x - bar_w / 2, roc_aucs, bar_w, label="ROC-AUC", color="#2ca02c", alpha=0.85)
+    bars_pr  = ax.bar(x + bar_w / 2, pr_aucs,  bar_w, label="PR-AUC",  color="#1f77b4", alpha=0.85)
+
+    # Annotate bar tops
+    for bar in bars_roc:
+        ax.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + 0.005,
+                f"{bar.get_height():.3f}", ha="center", va="bottom", fontsize=8)
+    for bar in bars_pr:
+        ax.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + 0.005,
+                f"{bar.get_height():.3f}", ha="center", va="bottom", fontsize=8)
+
+    # Highlight the full model
+    full_idx = next((i for i, r in enumerate(results) if r["name"] == "full_model"), None)
+    if full_idx is not None:
+        for bar_group in (bars_roc, bars_pr):
+            bar_group[full_idx].set_edgecolor("black")
+            bar_group[full_idx].set_linewidth(1.5)
+
+    ax.set_xticks(x)
+    ax.set_xticklabels(wrapped, fontsize=8)
+    ax.set_ylabel("Score")
+    ax.set_ylim([0, 1.08])
+    ax.set_title(f"Ablation Study  ({data.get('epochs_per_run', '?')} epochs each)  —  bold border = full model")
+    ax.legend(loc="lower right")
+    ax.grid(axis="y", alpha=0.25)
+    fig.tight_layout()
+    _save(fig, output_path)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Generate result plots.")
     parser.add_argument("--no-tsne", action="store_true", help="Skip t-SNE plot")
@@ -158,6 +215,9 @@ def main() -> None:
     if not args.no_tsne:
         print("t-SNE embeddings...")
         plot_tsne(FIGURES_DIR / "tsne_embeddings.png")
+
+    print("Ablation bar chart...")
+    plot_ablation(FIGURES_DIR / "ablation_study.png")
 
     print("Done. Figures saved to reports/figures/")
 
