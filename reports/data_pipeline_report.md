@@ -1,4 +1,4 @@
-# Phase 2 Data Pipeline Report
+# Data Pipeline Report
 
 ## Schema Validation
 
@@ -29,4 +29,4 @@
 - Constant columns count: 10
 - Top missing columns: {'Flow Packets/s': 0.0002, 'Flow Bytes/s': 0.0002}
 
-Phase 2 status: Data pipeline checks and split protocol are active and reproducible via config.
+Data pipeline checks and split protocol are active and reproducible via config.

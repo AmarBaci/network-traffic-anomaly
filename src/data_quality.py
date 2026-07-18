@@ -15,12 +15,12 @@ from preprocess import (
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Generate Phase 2 data quality and split protocol report.")
-    parser.add_argument("--config", type=str, default="configs/phase1_baselines.json", help="Path to config JSON")
+    parser = argparse.ArgumentParser(description="Generate data quality and split protocol report.")
+    parser.add_argument("--config", type=str, default="configs/baselines.json", help="Path to config JSON")
     parser.add_argument(
         "--output",
         type=str,
-        default="reports/phase2_data_pipeline_report.md",
+        default="reports/data_pipeline_report.md",
         help="Path to output markdown report",
     )
     parser.add_argument("--data-path", type=str, default=None, help="Optional dataset path override")
@@ -78,7 +78,7 @@ def main() -> None:
     )
 
     markdown = []
-    markdown.append("# Phase 2 Data Pipeline Report")
+    markdown.append("# Data Pipeline Report")
     markdown.append("")
     markdown.append("## Schema Validation")
     markdown.append("")
@@ -118,13 +118,13 @@ def main() -> None:
     markdown.append(f"- Constant columns count: {quality_summary['constant_columns_count']}")
     markdown.append(f"- Top missing columns: {quality_summary['top_missing_columns']}")
     markdown.append("")
-    markdown.append("Phase 2 status: Data pipeline checks and split protocol are active and reproducible via config.")
+    markdown.append("Data pipeline checks and split protocol are active and reproducible via config.")
 
     output_path = Path(args.output)
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text("\n".join(markdown) + "\n", encoding="utf-8")
 
-    print(f"Saved phase 2 data pipeline report to: {output_path}")
+    print(f"Saved data pipeline report to: {output_path}")
 
 
 if __name__ == "__main__":

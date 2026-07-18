@@ -34,9 +34,9 @@ MODEL_NAME = "contrastive_ssl"
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Phase 3: Contrastive self-supervised anomaly detection."
+        description="Contrastive self-supervised anomaly detection."
     )
-    parser.add_argument("--config", type=str, default="configs/phase3_contrastive.json")
+    parser.add_argument("--config", type=str, default="configs/contrastive.json")
     parser.add_argument("--data-path", type=str, default=None)
     parser.add_argument("--sample-rows", type=int, default=None)
     parser.add_argument("--random-seed", type=int, default=None)
@@ -260,7 +260,7 @@ def main() -> None:
     test_embeddings = np.concatenate(embed_parts)
 
     np.savez(
-        out / "phase3_ssl_scores.npz",
+        out / "contrastive_ssl_scores.npz",
         scores=test_scores,
         y_true=y_test.to_numpy(),
         train_losses=np.array(train_losses, dtype=np.float32),
@@ -275,7 +275,7 @@ def main() -> None:
             "embed_dim": embed_dim,
             "proj_dim": proj_dim,
         },
-        out / "phase3_ssl_checkpoint.pt",
+        out / "contrastive_ssl_checkpoint.pt",
     )
 
     # ------------------------------------------------------------------ save
@@ -321,7 +321,7 @@ def main() -> None:
         **metrics,
     }
 
-    latest_path = out / "phase3_contrastive_ssl_metrics.json"
+    latest_path = out / "contrastive_ssl_metrics.json"
     run_path = out / "metrics" / f"{run_id}.json"
 
     write_json(latest_path, payload)

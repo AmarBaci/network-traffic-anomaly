@@ -23,7 +23,7 @@ FIGURES_DIR = Path("reports/figures")
 MODELS: dict[str, Path] = {
     "Isolation Forest": RESULTS_DIR / "baseline_isolation_forest_scores.npz",
     "One-Class SVM": RESULTS_DIR / "baseline_one_class_svm_scores.npz",
-    "Contrastive SSL (ours)": RESULTS_DIR / "phase3_ssl_scores.npz",
+    "Contrastive SSL (ours)": RESULTS_DIR / "contrastive_ssl_scores.npz",
     "Supervised RF (upper bound)": RESULTS_DIR / "supervised_rf_scores.npz",
 }
 
@@ -99,7 +99,7 @@ def plot_roc_pr(output_path: Path) -> None:
 def plot_training_loss(output_path: Path) -> None:
     data = _load(MODELS["Contrastive SSL (ours)"])
     if data is None or "train_losses" not in data:
-        print("  [skip] training loss — run Phase 3 first.")
+        print("  [skip] training loss — train the contrastive model first.")
         return
 
     losses = data["train_losses"]
@@ -119,7 +119,7 @@ def plot_training_loss(output_path: Path) -> None:
 def plot_tsne(output_path: Path, max_points: int = 5000) -> None:
     data = _load(MODELS["Contrastive SSL (ours)"])
     if data is None or "embeddings" not in data:
-        print("  [skip] t-SNE — run Phase 3 first (embeddings not found).")
+        print("  [skip] t-SNE — train the contrastive model first (embeddings not found).")
         return
 
     embeddings = data["embeddings"]

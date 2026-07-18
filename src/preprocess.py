@@ -158,7 +158,7 @@ def build_features_and_labels_with_report(
     max_missing_ratio: float = 0.5,
     leakage_patterns: list[str] | None = None,
 ) -> tuple[pd.DataFrame, pd.Series, dict[str, object]]:
-    """Create X/y plus preprocessing diagnostics for phase reporting."""
+    """Create X/y plus preprocessing diagnostics for reporting."""
     if label_column not in df.columns:
         raise ValueError(
             f"Missing label column '{label_column}'. Available columns: {list(df.columns)[:10]}..."

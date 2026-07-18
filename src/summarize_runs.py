@@ -10,7 +10,7 @@ import pandas as pd
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Summarize baseline runs into a comparison table.")
     parser.add_argument("--runs-jsonl", type=str, default="results/experiment_runs.jsonl", help="Path to experiment run JSONL")
-    parser.add_argument("--output", type=str, default="reports/phase1_baseline_report.md", help="Output markdown report")
+    parser.add_argument("--output", type=str, default="reports/baseline_report.md", help="Output markdown report")
     return parser.parse_args()
 
 
@@ -62,18 +62,18 @@ def main() -> None:
     markdown_table = "\n".join([header, divider, *rows])
 
     markdown = []
-    markdown.append("# Phase 1 Experiment Report")
+    markdown.append("# Baseline Experiment Report")
     markdown.append("")
     markdown.append("## Baseline Comparison Table")
     markdown.append("")
     markdown.append(markdown_table)
     markdown.append("")
-    markdown.append("## First Clean Experiment Report Section")
+    markdown.append("## Summary")
     markdown.append("")
     markdown.append("We compared two unsupervised baselines trained on normal traffic and evaluated on held-out normal plus anomalous traffic.")
     markdown.append("The current best F1 among latest runs is from model: " + str(best_model["model"]) + ".")
     markdown.append(
-        "This phase establishes a reproducible benchmark so self-supervised methods can be evaluated against a stable baseline in the next phase."
+        "These baselines establish a reproducible benchmark against which the self-supervised model is evaluated."
     )
 
     output_path = Path(args.output)

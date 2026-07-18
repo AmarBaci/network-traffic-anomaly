@@ -59,17 +59,17 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--checkpoint",
-        default="results/phase3_ssl_checkpoint.pt",
-        help="Path to the trained SSL checkpoint (default: results/phase3_ssl_checkpoint.pt).",
+        default="results/contrastive_ssl_checkpoint.pt",
+        help="Path to the trained SSL checkpoint (default: results/contrastive_ssl_checkpoint.pt).",
     )
     parser.add_argument(
         "--metrics-json",
-        default="results/phase3_contrastive_ssl_metrics.json",
+        default="results/contrastive_ssl_metrics.json",
         help="Path to the training metrics JSON (used to recover dropped columns).",
     )
     parser.add_argument(
         "--config",
-        default="configs/phase3_contrastive.json",
+        default="configs/contrastive.json",
     )
     parser.add_argument(
         "--sample-rows", type=int, default=30000,
@@ -215,7 +215,7 @@ def main() -> None:
 
     checkpoint_path = args.checkpoint
     if not Path(checkpoint_path).exists():
-        raise FileNotFoundError(f"Checkpoint not found: {checkpoint_path}. Run phase3_contrastive_model.py first.")
+        raise FileNotFoundError(f"Checkpoint not found: {checkpoint_path}. Run contrastive_ssl.py first.")
 
     metrics_path = args.metrics_json
     if not Path(metrics_path).exists():

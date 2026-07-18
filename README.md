@@ -18,7 +18,7 @@ Dataset: CIC-IDS2017 DDoS capture (30,000 rows, 68 features). All models trained
 ```
 network-traffic-anomaly/
 ├── src/
-│   ├── phase3_contrastive_model.py   # SSL model training (main experiment)
+│   ├── contrastive_ssl.py   # SSL model training (main experiment)
 │   ├── baseline_isolation_forest.py  # Isolation Forest baseline
 │   ├── baseline_one_class_svm.py     # One-Class SVM baseline
 │   ├── supervised_upper_bound.py     # Labeled RF ceiling comparison
@@ -33,8 +33,8 @@ network-traffic-anomaly/
 │   ├── dashboard_api.py              # FastAPI backend
 │   └── dashboard_backend.py          # Dashboard payload builder
 ├── configs/
-│   ├── phase3_contrastive.json       # SSL hyperparameters
-│   └── phase1_baselines.json         # Baseline hyperparameters
+│   ├── contrastive.json       # SSL hyperparameters
+│   └── baselines.json         # Baseline hyperparameters
 ├── data/                             # Dataset files (large files not tracked)
 ├── results/                          # Metrics JSON, checkpoints, run logs
 ├── reports/figures/                  # ROC/PR curves, t-SNE plots
@@ -80,9 +80,9 @@ python src/baseline_one_class_svm.py
 
 **SSL model**
 ```bash
-python src/phase3_contrastive_model.py
+python src/contrastive_ssl.py
 ```
-Saves checkpoint and centroid to `results/phase3_ssl_checkpoint.pt`.
+Saves checkpoint and centroid to `results/contrastive_ssl_checkpoint.pt`.
 
 **Supervised upper bound**
 ```bash

@@ -33,7 +33,7 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Supervised upper bound: RandomForest trained on fully labeled data."
     )
-    parser.add_argument("--config", type=str, default="configs/phase3_contrastive.json")
+    parser.add_argument("--config", type=str, default="configs/contrastive.json")
     parser.add_argument("--data-path", type=str, default=None)
     parser.add_argument("--sample-rows", type=int, default=None)
     parser.add_argument("--random-seed", type=int, default=None)

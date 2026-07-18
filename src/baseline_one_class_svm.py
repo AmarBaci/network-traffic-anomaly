@@ -21,9 +21,9 @@ from preprocess import (
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Phase 1 baseline: One-Class SVM on CIC-style traffic data."
+        description="Baseline: One-Class SVM on CIC-style traffic data."
     )
-    parser.add_argument("--config", type=str, default="configs/phase1_baselines.json", help="Path to phase config JSON")
+    parser.add_argument("--config", type=str, default="configs/baselines.json", help="Path to config JSON")
     parser.add_argument("--data-path", type=str, default=None, help="Optional dataset path override")
     parser.add_argument("--sample-rows", type=int, default=None, help="Optional sample size override")
     parser.add_argument("--random-seed", type=int, default=None, help="Optional seed override")

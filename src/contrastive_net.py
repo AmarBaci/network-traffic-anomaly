@@ -68,7 +68,7 @@ class Decoder(nn.Module):
 
 
 class ContrastiveAutoencoder(nn.Module):
-    """Full model used in Phase 3.
+    """Full contrastive autoencoder (encoder, projection head, decoder).
 
     Training loss = contrastive_weight * NT-Xent + recon_weight * MSE
     Anomaly score = (1 - recon_weight) * centroid_dist + recon_weight * recon_error

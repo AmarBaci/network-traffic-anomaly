@@ -48,7 +48,7 @@ METADATA_COLUMNS = {
 
 LABEL_COLUMN = "Label"
 
-# Constant columns identified during Phase 2 data quality analysis.
+# Constant columns identified during data quality analysis.
 KNOWN_CONSTANT_COLUMNS = [
     "Bwd Avg Bulk Rate",
     "Bwd Avg Bytes/Bulk",
