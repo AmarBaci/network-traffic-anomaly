@@ -1,16 +1,33 @@
-# React + Vite
+# Dashboard Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+React + Vite dashboard for the Network Traffic Anomaly project. It visualizes
+model metrics, run history, and comparison plots served by the FastAPI backend
+(`src/dashboard_api.py`).
 
-Currently, two official plugins are available:
+## Development
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+```bash
+npm install
+npm run dev
+```
 
-## React Compiler
+The dev server runs at http://localhost:5173.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Start the backend in a separate terminal first (from the repo root):
 
-## Expanding the ESLint configuration
+```bash
+python -m uvicorn dashboard_api:app --reload --app-dir src
+```
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+Use the **Refresh** button in the UI to rebuild the dashboard payload after
+running new experiments.
+
+## Scripts
+
+- `npm run dev` — start the Vite dev server with HMR
+- `npm run build` — production build to `dist/`
+- `npm run preview` — preview the production build locally
+- `npm run lint` — run ESLint
+
+See the [top-level README](../README.md) for the full project and experiment
+workflow.

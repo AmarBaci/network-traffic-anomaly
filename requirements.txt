@@ -1,8 +1,11 @@
-pandas
-numpy
-scikit-learn
-torch
-matplotlib
-fastapi
-uvicorn
-pyspark
+# Tested with Python 3.9. Versions pinned to the environment used to produce
+# the reported results (see README). Regenerate with `pip freeze` if you upgrade.
+pandas==2.3.3
+numpy==2.0.2
+scikit-learn==1.6.1
+torch==2.8.0
+matplotlib==3.9.4
+fastapi==0.128.8
+uvicorn==0.39.0
+# pyspark is only needed for src/spark_preprocess.py (optional, scalable path).
+pyspark==3.5.3
