@@ -3,9 +3,9 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
-from data_loader import load_dataframe
-from experiment_utils import load_config
-from preprocess import (
+from nta.data_loader import load_dataframe
+from nta.experiment_utils import load_config
+from nta.preprocess import (
     build_data_quality_summary,
     build_features_and_labels_with_report,
     clean_dataframe,

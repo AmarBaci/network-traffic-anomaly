@@ -1,8 +1,8 @@
 """Generate ROC/PR curves, training loss, t-SNE, and ablation plots from saved artifacts.
 
 Run after training all models:
-    python src/generate_plots.py           # all plots including t-SNE
-    python src/generate_plots.py --no-tsne # skip t-SNE (fast)
+    python -m nta.generate_plots           # all plots including t-SNE
+    python -m nta.generate_plots --no-tsne # skip t-SNE (fast)
 
 Outputs land in reports/figures/.
 """

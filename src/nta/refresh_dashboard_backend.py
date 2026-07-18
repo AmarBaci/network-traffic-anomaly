@@ -3,16 +3,21 @@ from __future__ import annotations
 import argparse
 import subprocess
 import sys
-from pathlib import Path
 
 
 DEFAULT_STEPS = [
-    "src/data_quality.py",
-    "src/baseline_isolation_forest.py",
-    "src/baseline_one_class_svm.py",
-    "src/contrastive_ssl.py",
-    "src/summarize_runs.py",
-    "src/export_dashboard_data.py",
+    "nta.data_quality",
+    "nta.baseline_isolation_forest",
+    "nta.baseline_one_class_svm",
+    "nta.contrastive_ssl",
+    "nta.summarize_runs",
+    "nta.export_dashboard_data",
+]
+
+SKIP_TRAIN_STEPS = [
+    "nta.data_quality",
+    "nta.summarize_runs",
+    "nta.export_dashboard_data",
 ]
 
 
@@ -22,8 +27,8 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def run_step(script_path: str) -> None:
-    cmd = [sys.executable, script_path]
+def run_step(module: str) -> None:
+    cmd = [sys.executable, "-m", module]
     print(f"Running: {' '.join(cmd)}")
     subprocess.run(cmd, check=True)
 
@@ -31,17 +36,8 @@ def run_step(script_path: str) -> None:
 def main() -> None:
     args = parse_args()
 
-    steps = list(DEFAULT_STEPS)
-    if args.skip_train:
-        steps = [
-            "src/data_quality.py",
-            "src/summarize_runs.py",
-            "src/export_dashboard_data.py",
-        ]
-
+    steps = SKIP_TRAIN_STEPS if args.skip_train else DEFAULT_STEPS
     for step in steps:
-        if not Path(step).exists():
-            raise FileNotFoundError(f"Missing script step: {step}")
         run_step(step)
 
     print("Dashboard backend refresh completed successfully.")

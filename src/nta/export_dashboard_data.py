@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import argparse
 
-from dashboard_backend import DEFAULT_OUTPUT_JSON, DEFAULT_RUNS_JSONL, export_dashboard_payload
+from nta.dashboard_backend import DEFAULT_OUTPUT_JSON, DEFAULT_RUNS_JSONL, export_dashboard_payload
 
 
 def parse_args() -> argparse.Namespace:

@@ -17,8 +17,8 @@ Dataset: CIC-IDS2017 DDoS capture (30,000 rows, 68 features). All models trained
 
 ```
 network-traffic-anomaly/
-├── src/
-│   ├── contrastive_ssl.py   # SSL model training (main experiment)
+├── src/nta/                          # installable package (pip install -e .)
+│   ├── contrastive_ssl.py            # SSL model training (main experiment)
 │   ├── baseline_isolation_forest.py  # Isolation Forest baseline
 │   ├── baseline_one_class_svm.py     # One-Class SVM baseline
 │   ├── supervised_upper_bound.py     # Labeled RF ceiling comparison
@@ -33,13 +33,14 @@ network-traffic-anomaly/
 │   ├── dashboard_api.py              # FastAPI backend
 │   └── dashboard_backend.py          # Dashboard payload builder
 ├── configs/
-│   ├── contrastive.json       # SSL hyperparameters
-│   └── baselines.json         # Baseline hyperparameters
+│   ├── contrastive.json              # SSL hyperparameters
+│   └── baselines.json                # Baseline hyperparameters
 ├── data/                             # Dataset files (large files not tracked)
 ├── results/                          # Metrics JSON, checkpoints, run logs
 ├── reports/figures/                  # ROC/PR curves, t-SNE plots
 ├── frontend/                         # React dashboard (Vite)
-└── requirements.txt
+├── pyproject.toml                    # Package metadata / build config
+└── requirements.txt                  # Pinned dependency versions
 ```
 
 ## Setup
@@ -51,7 +52,10 @@ python3 -m venv .venv
 source .venv/bin/activate
 pip install --upgrade pip
 pip install -r requirements.txt
+pip install -e .            # install the `nta` package (editable)
 ```
+
+Scripts are run as modules from the repo root, e.g. `python -m nta.contrastive_ssl`.
 
 Place the dataset file in `data/`:
 - `Friday-WorkingHours-Afternoon-DDos.pcap_ISCX.csv.zip` (CIC-IDS2017)
@@ -63,10 +67,10 @@ All scripts read from `configs/` and log every run to `results/experiment_runs.j
 **Spark preprocessing** (scalable alternative to preprocess.py)
 ```bash
 # Local mode
-python src/spark_preprocess.py
+python -m nta.spark_preprocess
 
 # Cluster (spark-submit)
-spark-submit --master yarn src/spark_preprocess.py \
+spark-submit --master yarn src/nta/spark_preprocess.py \
     --data-path data/Friday-WorkingHours-Afternoon-DDos.pcap_ISCX.csv.zip \
     --output-dir results/spark_splits
 ```
@@ -74,36 +78,36 @@ Writes train/val/test Parquet splits and `results/spark_splits/quality_report.js
 
 **Baselines**
 ```bash
-python src/baseline_isolation_forest.py
-python src/baseline_one_class_svm.py
+python -m nta.baseline_isolation_forest
+python -m nta.baseline_one_class_svm
 ```
 
 **SSL model**
 ```bash
-python src/contrastive_ssl.py
+python -m nta.contrastive_ssl
 ```
 Saves checkpoint and centroid to `results/contrastive_ssl_checkpoint.pt`.
 
 **Supervised upper bound**
 ```bash
-python src/supervised_upper_bound.py
+python -m nta.supervised_upper_bound
 ```
 
 **Ablation study** (5 configurations, 50 epochs each)
 ```bash
-python src/ablation_study.py
+python -m nta.ablation_study
 # Use --epochs 100 to match full training length
 ```
 
 **Cross-attack generalisation** (requires additional CIC-IDS2017 files)
 ```bash
-python src/cross_attack_eval.py --new-data data/<attack_file>.csv
+python -m nta.cross_attack_eval --new-data data/<attack_file>.csv
 ```
 Download additional files from [Kaggle — CICIDS2017](https://www.kaggle.com/datasets/cicdataset/cicids2017).
 
 **Plots**
 ```bash
-python src/generate_plots.py
+python -m nta.generate_plots
 ```
 Outputs ROC/PR curves, training loss curve, and t-SNE projection to `reports/figures/`.
 
@@ -113,7 +117,7 @@ Start the API and frontend in two terminals:
 
 ```bash
 # Terminal 1
-python -m uvicorn dashboard_api:app --reload --app-dir src
+python -m uvicorn nta.dashboard_api:app --reload
 
 # Terminal 2
 cd frontend && npm install && npm run dev

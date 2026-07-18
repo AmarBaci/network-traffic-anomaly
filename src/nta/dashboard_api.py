@@ -10,7 +10,7 @@ from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 
-from dashboard_backend import DEFAULT_OUTPUT_JSON, export_dashboard_payload
+from nta.dashboard_backend import DEFAULT_OUTPUT_JSON, export_dashboard_payload
 
 
 app = FastAPI(title="Network Traffic Dashboard API", version="0.1.0")
@@ -65,7 +65,7 @@ def get_dashboard_data(
 
 @app.post("/dashboard/refresh")
 def refresh_dashboard_backend(skip_train: bool = False) -> dict[str, str]:
-    cmd = [sys.executable, "src/refresh_dashboard_backend.py"]
+    cmd = [sys.executable, "-m", "nta.refresh_dashboard_backend"]
     if skip_train:
         cmd.append("--skip-train")
 

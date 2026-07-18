@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "network-traffic-anomaly"
+version = "0.1.0"
+description = "Self-supervised contrastive anomaly detection for network traffic (CIC-IDS2017)."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [{ name = "Amar Baci" }]
+# Abstract dependencies. Exact, tested versions are pinned in requirements.txt.
+dependencies = [
+    "pandas",
+    "numpy",
+    "scikit-learn",
+    "torch",
+    "matplotlib",
+    "fastapi",
+    "uvicorn",
+]
+
+[project.optional-dependencies]
+# Only needed for the scalable Spark preprocessing path (nta.spark_preprocess).
+spark = ["pyspark"]
+
+[tool.setuptools.packages.find]
+where = ["src"]

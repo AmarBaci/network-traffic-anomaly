@@ -5,7 +5,7 @@ This script tests whether the learned normal-traffic representation generalises
 to attack types not seen during training (port scan, botnet, web attacks, etc.).
 
 Usage:
-    python src/cross_attack_eval.py --new-data data/<attack_file>.csv.zip
+    python -m nta.cross_attack_eval --new-data data/<attack_file>.csv.zip
 
 Download additional CIC-IDS2017 files from:
     https://www.kaggle.com/datasets/cicdataset/cicids2017
@@ -26,10 +26,10 @@ import torch
 import torch.nn.functional as F
 from sklearn.preprocessing import StandardScaler
 
-from contrastive_net import ContrastiveAutoencoder
-from data_loader import load_dataframe
-from evaluate import calibrate_threshold, compute_metrics, format_metrics
-from experiment_utils import (
+from nta.contrastive_net import ContrastiveAutoencoder
+from nta.data_loader import load_dataframe
+from nta.evaluate import calibrate_threshold, compute_metrics, format_metrics
+from nta.experiment_utils import (
     append_csv,
     append_jsonl,
     load_config,
@@ -37,7 +37,7 @@ from experiment_utils import (
     utc_timestamp,
     write_json,
 )
-from preprocess import (
+from nta.preprocess import (
     clean_dataframe,
     split_train_val_test_for_anomaly,
     validate_schema,

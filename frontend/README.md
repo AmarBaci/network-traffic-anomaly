@@ -16,7 +16,7 @@ The dev server runs at http://localhost:5173.
 Start the backend in a separate terminal first (from the repo root):
 
 ```bash
-python -m uvicorn dashboard_api:app --reload --app-dir src
+python -m uvicorn nta.dashboard_api:app --reload
 ```
 
 Use the **Refresh** button in the UI to rebuild the dashboard payload after

@@ -13,10 +13,10 @@ Outputs (written to --output-dir as Parquet):
 Usage
 -----
 Local mode (single machine):
-    python src/spark_preprocess.py
+    python -m nta.spark_preprocess
 
 Cluster / Spark-submit:
-    spark-submit --master yarn src/spark_preprocess.py \\
+    spark-submit --master yarn src/nta/spark_preprocess.py \\
         --data-path data/Friday-WorkingHours-Afternoon-DDos.pcap_ISCX.csv.zip \\
         --output-dir results/spark_splits
 """
