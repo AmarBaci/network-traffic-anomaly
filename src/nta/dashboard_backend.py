@@ -11,6 +11,10 @@ import pandas as pd
 DEFAULT_RUNS_JSONL = "results/experiment_runs.jsonl"
 DEFAULT_OUTPUT_JSON = "artifacts/dashboard/latest_dashboard_data.json"
 
+# Label-free models compared head to head. The supervised RF is a ceiling and
+# ablation_* runs are variants of the contrastive model, so neither competes.
+UNSUPERVISED_MODELS = ("contrastive_ssl", "isolation_forest", "one_class_svm")
+
 
 def utc_now_iso() -> str:
     return datetime.now(timezone.utc).isoformat()
@@ -82,8 +86,12 @@ def build_dashboard_payload(runs_jsonl: str = DEFAULT_RUNS_JSONL, history_limit:
 
     leaderboard = sorted(
         latest_models,
-        key=lambda x: (x.get("f1") is not None, x.get("f1") or -1.0),
+        key=lambda x: (x.get("roc_auc") is not None, x.get("roc_auc") or -1.0),
         reverse=True,
+    )
+    best_unsupervised = next(
+        (m for m in leaderboard if m["model"] in UNSUPERVISED_MODELS and m.get("roc_auc") is not None),
+        None,
     )
 
     recent_runs_df = df.sort_values("run_id", ascending=False).head(history_limit)
@@ -113,7 +121,7 @@ def build_dashboard_payload(runs_jsonl: str = DEFAULT_RUNS_JSONL, history_limit:
             "total_runs": int(len(df)),
         },
         "summary": {
-            "best_model_by_f1": leaderboard[0]["model"] if leaderboard else None,
+            "best_model_by_roc_auc": best_unsupervised["model"] if best_unsupervised else None,
             "model_count": len(latest_models),
         },
         "latest_models": latest_models,

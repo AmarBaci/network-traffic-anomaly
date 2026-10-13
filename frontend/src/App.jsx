@@ -7,6 +7,7 @@ const MODEL_LABELS = {
   isolation_forest: 'Isolation Forest',
   one_class_svm: 'One-Class SVM',
   contrastive_ssl: 'Contrastive SSL',
+  supervised_rf: 'Supervised RF (upper bound)',
 }
 
 const FIGURES = [
@@ -87,7 +88,7 @@ function App() {
   const [refreshing, setRefreshing] = useState(false)
   const [error, setError] = useState('')
 
-  const bestModel = payload?.summary?.best_model_by_f1 || 'N/A'
+  const bestModel = payload?.summary?.best_model_by_roc_auc || 'N/A'
   const totalRuns = payload?.source?.total_runs || 0
   const latestModels = useMemo(() => payload?.latest_models || [], [payload])
   const recentRuns = payload?.recent_runs || []
@@ -103,16 +104,16 @@ function App() {
 
   const metricCards = useMemo(() => {
     if (!latestModels.length) return []
-    const best = [...latestModels].sort((a, b) => (b.f1 || -1) - (a.f1 || -1))[0]
+    const best = latestModels.find((m) => m.model === bestModel)
     return [
-      { label: 'Best Model', value: formatModelName(best?.model) || 'N/A' },
-      { label: 'Best F1', value: formatNumber(best?.f1) },
-      { label: 'Best ROC-AUC', value: formatNumber(best?.roc_auc) },
-      { label: 'Best PR-AUC', value: formatNumber(best?.pr_auc) },
+      { label: 'Best Unsupervised Model (ROC-AUC)', value: best ? formatModelName(best.model) : 'N/A' },
+      { label: 'ROC-AUC', value: formatNumber(best?.roc_auc) },
+      { label: 'PR-AUC', value: formatNumber(best?.pr_auc) },
+      { label: 'F1', value: formatNumber(best?.f1) },
       { label: 'Total Runs Logged', value: formatCount(totalRuns) },
       { label: 'Models Tracked', value: formatCount(payload?.summary?.model_count) },
     ]
-  }, [latestModels, payload, totalRuns])
+  }, [latestModels, bestModel, payload, totalRuns])
 
   async function fetchDashboardData() {
     setLoading(true)
@@ -243,7 +244,7 @@ function App() {
           <ol>
             {(payload?.leaderboard || []).map((row) => (
               <li key={row.run_id}>
-                <ModelCell model={row.model} /> — F1 {formatNumber(row.f1)} | ROC-AUC {formatNumber(row.roc_auc)}
+                <ModelCell model={row.model} /> — ROC-AUC {formatNumber(row.roc_auc)} | F1 {formatNumber(row.f1)}
               </li>
             ))}
           </ol>
@@ -268,7 +269,7 @@ function App() {
             <li>Columns: {formatCount(schema.n_columns)}</li>
             <li>Duplicate Rows: {formatCount(schema.duplicate_rows)}</li>
             <li>Missing Ratio: {formatNumber(schema.global_missing_ratio, 6)}</li>
-            <li>Best Model by F1: {formatModelName(bestModel)}</li>
+            <li>Best Unsupervised Model by ROC-AUC: {formatModelName(bestModel)}</li>
           </ul>
         </article>
         <article>
