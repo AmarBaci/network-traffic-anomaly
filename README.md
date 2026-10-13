@@ -4,14 +4,21 @@ Master's Pattern Recognition course project. Develops a contrastive self-supervi
 
 ## Results
 
-| Model | ROC-AUC | PR-AUC | F1 | FPR |
-|---|---|---|---|---|
-| Supervised RF (labeled upper bound) | 0.9999 | 0.9999 | 0.9925 | 0.0000 |
-| **Contrastive SSL (ours)** | **0.7923** | **0.9302** | 0.1245 | 0.0016 |
-| Isolation Forest | 0.7555 | 0.8879 | 0.1101 | 0.0132 |
-| One-Class SVM | 0.6521 | 0.9008 | 0.1237 | 0.0003 |
+| Model | ROC-AUC | PR-AUC | Precision | Recall | F1 | FPR |
+|---|---|---|---|---|---|---|
+| Supervised RF (labeled upper bound) | 0.9999 | 0.9999 | 1.0000 | 0.9852 | 0.9925 | 0.0000 |
+| **Contrastive SSL (ours)** | **0.7923** | **0.9302** | 0.9930 | 0.0664 | 0.1245 | 0.0016 |
+| Isolation Forest | 0.7555 | 0.8879 | 0.9363 | 0.0585 | 0.1101 | 0.0132 |
+| One-Class SVM | 0.6521 | 0.9008 | 0.9988 | 0.0660 | 0.1237 | 0.0003 |
 
-Dataset: CIC-IDS2017 DDoS capture (30,000 rows, 68 features). All models trained on normal traffic only; evaluated on the same held-out test set.
+Dataset: CIC-IDS2017 DDoS capture (30,000 rows, 68 features). The unsupervised models are trained on normal traffic only; the supervised Random Forest uses labels and serves as a ceiling. All models are evaluated on the same held-out test set.
+
+### Reading the results
+
+- **ROC-AUC is the main comparison.** It measures how well each model ranks attacks above normal traffic, independent of any threshold. The contrastive encoder ranks best among the label-free models (0.79 vs 0.76 and 0.65).
+- **The low F1 comes from the threshold policy, not the ranking.** The alert threshold is set at the 95th percentile of validation scores, so only the most anomalous ~5% of traffic is flagged. Alerts are almost always correct (precision 0.99, FPR 0.16%), but only ~7% of attack flows are caught. That suits a low-false-alarm setting; a lower threshold trades precision for recall.
+- **PR-AUC is inflated by class balance.** About 77% of the test set is attack traffic (12,826 of 16,696 rows), so a random scorer would already reach a PR-AUC of ~0.77. Compare PR-AUC values against that baseline rather than against 0.
+- **Next step:** calibrate the threshold on normal-only validation traffic to target a fixed false-positive rate, which is closer to how an unsupervised detector would be deployed.
 
 ## Project Structure
 
@@ -39,6 +46,7 @@ network-traffic-anomaly/
 ├── results/                          # Metrics JSON, checkpoints, run logs
 ├── reports/figures/                  # ROC/PR curves, t-SNE plots
 ├── frontend/                         # React dashboard (Vite)
+├── tests/                            # pytest unit tests
 ├── pyproject.toml                    # Package metadata / build config
 └── requirements.txt                  # Pinned dependency versions
 ```
@@ -124,6 +132,15 @@ cd frontend && npm install && npm run dev
 ```
 
 Open `http://localhost:5173`. Use the Refresh button to rebuild the dashboard payload after running new experiments.
+
+## Testing
+
+Unit tests cover the evaluation metrics, preprocessing and train/val/test splitting, and the tabular augmentations. They use small synthetic data, so the dataset isn't needed:
+
+```bash
+pip install pytest
+python -m pytest
+```
 
 ## Reproducibility
 

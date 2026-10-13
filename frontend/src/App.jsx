@@ -54,7 +54,7 @@ function ModelCell({ model }) {
   return (
     <span className="model-name">
       {label}
-      {isOurs && <span className="badge">Phase 3</span>}
+      {isOurs && <span className="badge">Ours</span>}
     </span>
   )
 }
@@ -89,7 +89,7 @@ function App() {
 
   const bestModel = payload?.summary?.best_model_by_f1 || 'N/A'
   const totalRuns = payload?.source?.total_runs || 0
-  const latestModels = payload?.latest_models || []
+  const latestModels = useMemo(() => payload?.latest_models || [], [payload])
   const recentRuns = payload?.recent_runs || []
   const quality = payload?.data_quality || {}
 

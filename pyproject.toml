@@ -24,6 +24,12 @@ dependencies = [
 [project.optional-dependencies]
 # Only needed for the scalable Spark preprocessing path (nta.spark_preprocess).
 spark = ["pyspark"]
+# Test runner.
+dev = ["pytest"]
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
